@@ -59,4 +59,3 @@ LovesfireAI connects to a UI layer through a simple adapter, enabling:
 
 This repository is in its initialization phase.  
 Core modules will be added in structured phases to ensure clarity, modularity, and sponsor‑ready architecture.
-
