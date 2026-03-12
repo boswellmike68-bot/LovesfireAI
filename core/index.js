@@ -1,12 +1,12 @@
 // core/index.js
 
-// 1. Internal state container
+// Internal state container
 const state = {
   history: [],
   mode: "default",
 };
 
-// 2. Parse raw input into a clean internal form
+// Parse raw input into a clean internal form
 function parseInput(raw) {
   return {
     text: raw,
@@ -14,15 +14,17 @@ function parseInput(raw) {
   };
 }
 
-// 3. Resolve intent (neutral, no tone)
+// Resolve intent (neutral, no tone)
 function resolveIntent(parsed) {
-  if (parsed.text.toLowerCase().includes("grow")) {
-    return "growth";
-  }
+  const lower = parsed.text.toLowerCase();
+
+  if (lower.includes("grow")) return "growth";
+  if (lower.includes("help")) return "assist";
+
   return "respond";
 }
 
-// 4. Produce a neutral output object
+// Produce a neutral output object
 function generateOutput(intent, parsed) {
   return {
     intent,
