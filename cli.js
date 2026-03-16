@@ -4,7 +4,13 @@
 import readline from "node:readline";
 import { respond } from "./index.js";
 import { listAvailableTones } from "./tone/applyTone.js";
-import { getBBnCCState } from "./bb-interface/wrapBBnCC.js";
+import {
+  getBBnCCState,
+  resetMomentum,
+  resetCheckpoints,
+  resetPhase,
+  resetAll
+} from "./bb-interface/wrapBBnCC.js";
 
 let currentTone = "direct"; // persistent tone state
 
@@ -21,14 +27,18 @@ console.log("   LovesfireAI — Interactive CLI Runner  ");
 console.log("========================================");
 console.log("Type your message and press Enter.");
 console.log("Commands:");
-console.log("  /tone <name>     — change tone");
-console.log("  /tones           — list available tones");
-console.log("  /tone reset      — reset to default tone");
-console.log("  /state           — show full BBnCC state");
-console.log("  /momentum        — show momentum counter");
-console.log("  /checkpoints     — list checkpoints");
-console.log("  /phase           — show current BBnCC phase");
-console.log("  exit             — quit the CLI\n");
+console.log("  /tone <name>        — change tone");
+console.log("  /tones              — list available tones");
+console.log("  /tone reset         — reset to default tone");
+console.log("  /state              — show full BBnCC state");
+console.log("  /momentum           — show momentum counter");
+console.log("  /checkpoints        — list checkpoints");
+console.log("  /phase              — show current BBnCC phase");
+console.log("  /reset momentum     — reset momentum to 0");
+console.log("  /reset checkpoints  — clear all checkpoints");
+console.log("  /reset phase        — reset phase to init");
+console.log("  /reset all          — full BBnCC session reset");
+console.log("  exit                — quit the CLI\n");
 
 rl.prompt();
 
@@ -43,7 +53,9 @@ rl.on("line", (line) => {
     return;
   }
 
+  // -------------------------------
   // Tone listing
+  // -------------------------------
   if (input === "/tones") {
     console.log("\n🎨 Available Tones:");
     console.log(listAvailableTones().join(", "));
@@ -52,7 +64,9 @@ rl.on("line", (line) => {
     return;
   }
 
+  // -------------------------------
   // Tone switching
+  // -------------------------------
   if (input.startsWith("/tone")) {
     const parts = input.split(" ");
     const newTone = parts[1];
@@ -87,7 +101,6 @@ rl.on("line", (line) => {
   // -------------------------------
   // BBnCC Inspector Commands
   // -------------------------------
-
   if (input === "/state") {
     console.log("\n📊 Full BBnCC State:");
     console.log(getBBnCCState());
@@ -126,9 +139,39 @@ rl.on("line", (line) => {
   }
 
   // -------------------------------
+  // BBnCC Reset Commands
+  // -------------------------------
+  if (input === "/reset momentum") {
+    resetMomentum();
+    console.log("\n⚡ Momentum reset to 0.\n");
+    rl.prompt();
+    return;
+  }
+
+  if (input === "/reset checkpoints") {
+    resetCheckpoints();
+    console.log("\n📍 All checkpoints cleared.\n");
+    rl.prompt();
+    return;
+  }
+
+  if (input === "/reset phase") {
+    resetPhase();
+    console.log("\n🔄 Phase reset to: init\n");
+    rl.prompt();
+    return;
+  }
+
+  if (input === "/reset all") {
+    resetAll();
+    console.log("\n🧹 BBnCC session fully reset.\n");
+    rl.prompt();
+    return;
+  }
+
+  // -------------------------------
   // Normal message → call the public API
   // -------------------------------
-
   const output = respond(input, currentTone);
 
   // Display the styled output
