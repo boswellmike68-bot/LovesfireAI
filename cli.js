@@ -14,6 +14,35 @@ import {
 
 let currentTone = "direct"; // persistent tone state
 
+// Suggestion engine — lightweight, contextual, non-intrusive
+function suggest(input) {
+  const suggestions = [];
+
+  // Long messages → checkpoint or momentum awareness
+  if (input.length > 80) {
+    suggestions.push("/checkpoints");
+  }
+
+  // Tone exploration
+  if (input.toLowerCase().includes("tone")) {
+    suggestions.push("/tones");
+  }
+
+  // Governance curiosity
+  if (input.toLowerCase().includes("phase")) {
+    suggestions.push("/phase");
+  }
+
+  // If user seems stuck or uncertain
+  if (["?", "help", "what", "how"].some(word => input.toLowerCase().includes(word))) {
+    suggestions.push("/state");
+  }
+
+  if (suggestions.length > 0) {
+    console.log("💡 Suggestions:", suggestions.join(", "));
+  }
+}
+
 // Create interactive terminal interface
 const rl = readline.createInterface({
   input: process.stdin,
@@ -181,6 +210,9 @@ rl.on("line", (line) => {
   // Display BBnCC metadata
   console.log("\n📊  BBnCC State:");
   console.log(output.bbcc);
+
+  // Personalized suggestions
+  suggest(input);
 
   console.log("\n");
   rl.prompt();
