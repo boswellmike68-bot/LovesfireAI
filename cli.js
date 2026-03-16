@@ -4,6 +4,7 @@
 import readline from "node:readline";
 import { respond } from "./index.js";
 import { listAvailableTones } from "./tone/applyTone.js";
+import { getBBnCCState } from "./bb-interface/wrapBBnCC.js";
 
 let currentTone = "direct"; // persistent tone state
 
@@ -20,10 +21,14 @@ console.log("   LovesfireAI — Interactive CLI Runner  ");
 console.log("========================================");
 console.log("Type your message and press Enter.");
 console.log("Commands:");
-console.log("  /tone <name>   — change tone");
-console.log("  /tones         — list available tones");
-console.log("  /tone reset    — reset to default tone");
-console.log("  exit           — quit the CLI\n");
+console.log("  /tone <name>     — change tone");
+console.log("  /tones           — list available tones");
+console.log("  /tone reset      — reset to default tone");
+console.log("  /state           — show full BBnCC state");
+console.log("  /momentum        — show momentum counter");
+console.log("  /checkpoints     — list checkpoints");
+console.log("  /phase           — show current BBnCC phase");
+console.log("  exit             — quit the CLI\n");
 
 rl.prompt();
 
@@ -79,7 +84,51 @@ rl.on("line", (line) => {
     return;
   }
 
+  // -------------------------------
+  // BBnCC Inspector Commands
+  // -------------------------------
+
+  if (input === "/state") {
+    console.log("\n📊 Full BBnCC State:");
+    console.log(getBBnCCState());
+    console.log("");
+    rl.prompt();
+    return;
+  }
+
+  if (input === "/momentum") {
+    const state = getBBnCCState();
+    console.log(`\n⚡ Momentum: ${state.momentum}\n`);
+    rl.prompt();
+    return;
+  }
+
+  if (input === "/checkpoints") {
+    const state = getBBnCCState();
+    console.log("\n📍 Checkpoints:");
+    if (state.checkpoints.length === 0) {
+      console.log("No checkpoints recorded.\n");
+    } else {
+      state.checkpoints.forEach((cp, i) => {
+        console.log(`${i + 1}. ${new Date(cp.time).toLocaleString()} — ${cp.input}`);
+      });
+      console.log("");
+    }
+    rl.prompt();
+    return;
+  }
+
+  if (input === "/phase") {
+    const state = getBBnCCState();
+    console.log(`\n🔄 Current Phase: ${state.phase}\n`);
+    rl.prompt();
+    return;
+  }
+
+  // -------------------------------
   // Normal message → call the public API
+  // -------------------------------
+
   const output = respond(input, currentTone);
 
   // Display the styled output
